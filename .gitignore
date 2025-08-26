@@ -1,0 +1,219 @@
+@echo off
+chcp 65001 >nul
+setlocal enabledelayedexpansion
+
+echo ================================
+echo   GitHub Pages 자동 배포 스크립트
+echo   Windows 환경 최적화 버전
+echo ================================
+
+REM 현재 디렉토리 확인
+echo 현재 작업 디렉토리: %CD%
+
+REM Git 설치 확인
+echo.
+echo [0/8] Git 설치 확인...
+git --version >nul 2>&1
+if errorlevel 1 (
+    echo 오류: Git이 설치되지 않았습니다.
+    echo Git을 설치하고 다시 시도해주세요.
+    echo 다운로드: https://git-scm.com/download/win
+    pause
+    exit /b 1
+)
+echo Git 설치 확인 완료!
+
+REM 이미 Git 저장소인지 확인
+echo.
+echo [1/8] Git 저장소 확인/초기화...
+if not exist ".git\" (
+    git init
+    echo Git 저장소 초기화 완료!
+) else (
+    echo 기존 Git 저장소 발견!
+)
+
+REM .gitignore 파일 생성 (없을 경우)
+if not exist ".gitignore" (
+    echo.
+    echo [추가] .gitignore 파일 생성...
+    (
+    echo # Windows
+    echo Thumbs.db
+    echo ehthumbs.db
+    echo Desktop.ini
+    echo $RECYCLE.BIN/
+    echo.
+    echo # IDE
+    echo .vscode/
+    echo .idea/
+    echo *.swp
+    echo *.swo
+    echo.
+    echo # Dependencies
+    echo node_modules/
+    echo.
+    echo # Build
+    echo dist/
+    echo build/
+    echo.
+    echo # Logs
+    echo *.log
+    echo logs/
+    ) > .gitignore
+    echo .gitignore 파일 생성 완료!
+)
+
+REM 파일 상태 확인
+echo.
+echo [2/8] 파일 상태 확인...
+git status --porcelain >nul 2>&1
+if errorlevel 1 (
+    echo 경고: Git 상태를 확인할 수 없습니다.
+)
+
+REM 모든 파일을 스테이징 영역에 추가
+echo.
+echo [3/8] 파일들을 스테이징...
+git add .
+if errorlevel 1 (
+    echo 오류: 파일 스테이징에 실패했습니다.
+    pause
+    exit /b 1
+)
+echo 파일 스테이징 완료!
+
+REM 변경사항이 있는지 확인
+git diff --cached --quiet
+if not errorlevel 1 (
+    echo.
+    echo 변경사항이 없습니다. 새로운 커밋을 생성하지 않습니다.
+    echo 기존 코드를 푸시합니다...
+    goto :push_code
+)
+
+REM 커밋 메시지 입력
+echo.
+set /p "commit_msg=커밋 메시지를 입력하세요 (Enter = 기본값 사용): "
+if "!commit_msg!"=="" set "commit_msg=Deploy to GitHub Pages - %date% %time%"
+
+echo.
+echo [4/8] 커밋 생성...
+git commit -m "!commit_msg!"
+if errorlevel 1 (
+    echo 오류: 커밋 생성에 실패했습니다.
+    pause
+    exit /b 1
+)
+echo 커밋 생성 완료!
+
+:push_code
+REM GitHub 정보 입력
+echo.
+echo ========== GitHub 저장소 정보 입력 ==========
+set /p "username=GitHub 사용자명: "
+if "!username!"=="" (
+    echo 오류: GitHub 사용자명을 입력해주세요.
+    pause
+    exit /b 1
+)
+
+set /p "repo_name=GitHub 저장소 이름: "
+if "!repo_name!"=="" (
+    echo 오류: 저장소 이름을 입력해주세요.
+    pause
+    exit /b 1
+)
+
+REM 원격 저장소 확인 및 설정
+echo.
+echo [5/8] 원격 저장소 설정...
+git remote get-url origin >nul 2>&1
+if not errorlevel 1 (
+    echo 기존 원격 저장소를 업데이트합니다...
+    git remote set-url origin https://github.com/!username!/!repo_name!.git
+) else (
+    echo 새 원격 저장소를 추가합니다...
+    git remote add origin https://github.com/!username!/!repo_name!.git
+)
+echo 원격 저장소 설정 완료!
+
+REM 브랜치 확인 및 설정
+echo.
+echo [6/8] 브랜치 설정...
+for /f %%i in ('git branch --show-current') do set current_branch=%%i
+if not "!current_branch!"=="main" (
+    git branch -M main
+    echo 메인 브랜치로 변경 완료!
+) else (
+    echo 이미 main 브랜치입니다.
+)
+
+REM GitHub에 푸시
+echo.
+echo [7/8] GitHub에 푸시 중...
+echo 인증이 필요할 수 있습니다...
+git push -u origin main
+if errorlevel 1 (
+    echo.
+    echo 오류: GitHub 푸시에 실패했습니다.
+    echo.
+    echo 가능한 원인:
+    echo 1. GitHub 인증 문제 (Personal Access Token 필요)
+    echo 2. 저장소가 존재하지 않음
+    echo 3. 권한 부족
+    echo.
+    echo GitHub Personal Access Token 설정:
+    echo https://github.com/settings/tokens
+    pause
+    exit /b 1
+)
+echo GitHub 푸시 완료!
+
+REM GitHub Pages 자동 활성화 시도 (gh CLI 사용)
+echo.
+echo [8/8] GitHub Pages 설정 시도...
+gh --version >nul 2>&1
+if not errorlevel 1 (
+    echo GitHub CLI가 감지되었습니다. Pages 자동 설정을 시도합니다...
+    gh api repos/!username!/!repo_name!/pages -f source[branch]=main -f source[path]=/ >nul 2>&1
+    if not errorlevel 1 (
+        echo GitHub Pages 자동 설정 완료!
+    ) else (
+        echo GitHub Pages 수동 설정이 필요합니다.
+    )
+) else (
+    echo GitHub CLI가 없습니다. 수동 설정이 필요합니다.
+)
+
+echo.
+echo ================================
+echo        배포 완료!
+echo ================================
+echo.
+echo 🎉 성공적으로 배포되었습니다!
+echo.
+echo 📍 GitHub 저장소: https://github.com/!username!/!repo_name!
+echo 🌐 GitHub Pages URL: https://!username!.github.io/!repo_name!
+echo.
+echo ⚠️  GitHub Pages 수동 설정이 필요한 경우:
+echo    1. https://github.com/!username!/!repo_name!/settings/pages
+echo    2. Source: "Deploy from a branch" 선택
+echo    3. Branch: "main" 선택, Folder: "/ (root)" 선택
+echo    4. Save 클릭
+echo.
+echo ⏰ 페이지 활성화까지 최대 10분 소요됩니다.
+echo.
+
+REM 브라우저에서 열기 옵션
+set /p "open_browser=🔗 GitHub 저장소를 브라우저에서 열까요? (Y/N): "
+if /i "!open_browser!"=="Y" (
+    start https://github.com/!username!/!repo_name!/settings/pages
+    echo 브라우저에서 GitHub Pages 설정 페이지를 열었습니다.
+)
+
+echo.
+echo ✅ 스크립트 실행 완료!
+echo 문제가 발생하면 GitHub Desktop 또는 Git GUI 도구 사용을 권장합니다.
+echo.
+pause

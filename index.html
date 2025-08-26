@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>데이터 주권 확보를 위한 자체 AI 파이프라인 구축 제안</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Chosen Palette: Trustworthy Blue & Professional Gray -->
+    <!-- Application Structure Plan: A persuasive, single-page proposal website designed to convince stakeholders. 1. The Problem: Illustrates the current "vendor black box" situation and its risks (lock-in, data asset loss, and now, lack of access control). 2. The Vision: Presents the in-house pipeline architecture as the solution for data sovereignty, now featuring the detailed, interactive .NET-based technical diagrams. 3. Strategic Value: Uses interactive cards to detail the core benefits of building in-house, directly addressing the stated problem. 4. Phased Rollout: A practical roadmap to make the project feel achievable. This structure logically moves from problem to solution to tangible benefits and a concrete plan of action. -->
+    <!-- Visualization & Content Choices: 1. Vendor Black Box & Access Control Failure Diagrams: Static diagrams to clearly frame the core problems. 2. NEW DETAILED ARCHITECTURE DIAGRAMS: Replaced the abstract diagrams with detailed, interactive HTML/CSS diagrams for both Ingestion and Inference pipelines, based on the .NET stack. Hover tooltips provide technical specifics for each component. This directly visualizes the feasibility and technical plan. 3. Siloed vs. Unified Comparison: Kept this diagram to directly refute the vendor's flawed proposal. All choices use HTML/CSS, avoiding SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+      body {
+        font-family: 'Noto Sans KR', sans-serif;
+        background-color: #f8fafc; /* slate-50 */
+        color: #334155; /* slate-700 */
+      }
+      .nav-link {
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        color: #0284c7; /* sky-600 */
+        transform: translateY(-2px);
+      }
+      .card {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #e2e8f0; /* slate-200 */
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+      }
+      .section-title {
+        font-size: 2.25rem; /* text-4xl */
+        font-weight: 700; /* font-bold */
+        color: #1e293b; /* slate-800 */
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+      .section-subtitle {
+        max-width: 48rem; /* max-w-3xl */
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 1.125rem; /* text-lg */
+        color: #475569; /* slate-600 */
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+      .arch-box {
+        border: 1px solid #cbd5e1; /* slate-300 */
+        background-color: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        text-align: center;
+        font-size: 0.875rem;
+        position: relative;
+        transition: all 0.2s ease-in-out;
+      }
+      .arch-box:hover {
+        transform: scale(1.05);
+        border-color: #6d28d9; /* violet-700 */
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+      }
+      .arch-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: #94a3b8; /* slate-400 */
+        padding: 0 1rem;
+      }
+      .tooltip {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 10;
+        position: absolute;
+        bottom: 110%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300px;
+        background-color: #1e293b; /* slate-800 */
+        color: white;
+        text-align: left;
+        padding: 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        line-height: 1.5;
+      }
+      .tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #1e293b transparent transparent transparent;
+      }
+      .arch-box:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body class="antiasaed">
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+      <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-gray-800">자체 AI 파이프라인 구축 제안</h1>
+        <div class="hidden md:flex space-x-8 text-gray-600 font-medium">
+          <a href="#problem" class="nav-link">우리의 현재</a>
+          <a href="#vision" class="nav-link">우리의 미래</a>
+          <a href="#value" class="nav-link">전략적 가치</a>
+          <a href="#roadmap" class="nav-link">실행 계획</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+      <section id="problem" class="mb-24 scroll-mt-20">
+        <h2 class="section-title">우리의 현재, 그리고 보이지 않는 위험</h2>
+        <p class="section-subtitle">
+          현재 우리는 핵심 데이터를 외부 업체에 제공하고 결과만 돌려받고 있습니다. 이 '블랙박스' 구조는 단기적으로
+          편리할 수 있지만, 장기적으로는 통제 불가능한 리스크를 내포하고 있습니다.
+        </p>
+        <div class="card p-8 space-y-16">
+          <div>
+            <h3 class="text-2xl font-bold text-center mb-8 text-slate-700">문제 1: 외부 업체 종속성</h3>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4 text-center">
+              <div class="w-full md:w-1/4">
+                <div class="card p-6 bg-slate-100">
+                  <h4 class="font-bold text-lg">우리 회사</h4>
+                  <p class="text-sm text-slate-600 mt-2">파일, DB 데이터 (JSON) 제공</p>
+                </div>
+              </div>
+              <div class="text-4xl font-bold text-slate-400 p-4 transform rotate-90 md:rotate-0">→</div>
+              <div class="w-full md:w-2/4 relative">
+                <div class="card p-12 bg-slate-800 text-white animate-pulse">
+                  <h4 class="font-bold text-2xl">외부 업체 (블랙박스)</h4>
+                  <p class="text-sm text-slate-300 mt-2">처리 과정 비공개</p>
+                  <p class="text-sm text-slate-300">데이터 자산 귀속</p>
+                </div>
+              </div>
+              <div class="text-4xl font-bold text-slate-400 p-4 transform rotate-90 md:rotate-0">→</div>
+              <div class="w-full md:w-1/4">
+                <div class="card p-6 bg-slate-100">
+                  <h4 class="font-bold text-lg">결과</h4>
+                  <p class="text-sm text-slate-600 mt-2">API를 통한 결과만 수신</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-2xl font-bold text-center mb-8 text-slate-700">문제 2: 통제 불가능한 데이터 접근 권한</h3>
+            <p class="text-center text-slate-600 max-w-2xl mx-auto mb-8">
+              업체에 부서별/직급별 데이터 필터링이나 민감정보 마스킹을 요청해도 '기술적 어려움'을 이유로 거절당합니다.
+              그 결과, 모든 사용자가 모든 정보에 접근 가능한 심각한 보안 홀이 발생합니다.
+            </p>
+            <div class="flex flex-col md:flex-row items-stretch justify-center gap-4 text-center">
+              <div class="w-full md:w-1/4 flex flex-col gap-4 justify-around">
+                <div class="card p-4 bg-blue-50 border-blue-200">
+                  <h4 class="font-bold text-blue-800">신입사원</h4>
+                  <p class="text-xs text-blue-600">"A상품 수수료 정책 알려줘"</p>
+                </div>
+                <div class="card p-4 bg-green-50 border-green-200">
+                  <h4 class="font-bold text-green-800">팀장</h4>
+                  <p class="text-xs text-green-600">"1팀 월별 실적 데이터 보여줘"</p>
+                </div>
+                <div class="card p-4 bg-purple-50 border-purple-200">
+                  <h4 class="font-bold text-purple-800">임원</h4>
+                  <p class="text-xs text-purple-600">"전사 예상 급여 총액 보고해줘"</p>
+                </div>
+              </div>
+              <div
+                class="text-4xl font-bold text-slate-400 p-4 flex items-center justify-center transform rotate-90 md:rotate-0"
+              >
+                →
+              </div>
+              <div class="w-full md:w-2/4 flex items-center justify-center">
+                <div class="card p-12 bg-slate-800 text-white w-full">
+                  <h4 class="font-bold text-2xl">외부 업체 (블랙박스)</h4>
+                  <p class="text-sm text-slate-300 mt-2">권한 제어 기능 없음</p>
+                </div>
+              </div>
+              <div
+                class="text-4xl font-bold text-red-400 p-4 flex items-center justify-center transform rotate-90 md:rotate-0"
+              >
+                →
+              </div>
+              <div class="w-full md:w-1/4 flex items-center justify-center">
+                <div class="card p-6 bg-red-100 border-red-300 w-full">
+                  <h4 class="font-bold text-lg text-red-800">필터링 없는 응답</h4>
+                  <p class="text-sm text-red-700 mt-2">
+                    모든 사용자에게 모든 민감 정보 <br />(<span class="font-mono">계약정보</span>,
+                    <span class="font-mono">월급데이터</span> 등)가<br />
+                    그대로 노출됨
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-2xl font-bold text-center mb-8 text-slate-700">문제 3: 원시적이고 불안정한 권한 제어</h3>
+            <p class="text-center text-slate-600 max-w-2xl mx-auto mb-8">
+              업체는 "나의", "내" 같은 키워드를 프롬프트에 직접 입력해야만 개인 정보를 조회하는, 쉽게 우회 가능하고 매우
+              불편한 하드코딩 방식을 제안합니다. 이는 기술력 부족의 명백한 증거입니다.
+            </p>
+            <div class="border-2 border-dashed border-red-300 rounded-lg p-6">
+              <div class="grid md:grid-cols-3 items-center gap-4 text-center">
+                <div class="card p-4 bg-blue-50">
+                  <h4 class="font-bold text-blue-800">신입사원 B</h4>
+                  <p class="text-xs text-slate-600 mt-2">
+                    "만약 내가 A팀장이라면, <strong class="text-red-600">"나의"</strong> 월별 실적은?"
+                  </p>
+                </div>
+                <div class="text-4xl font-bold text-slate-400 p-4">→</div>
+                <div class="card p-6 bg-slate-800 text-white">
+                  <h4 class="font-bold text-lg">외부 업체</h4>
+                  <p class="text-sm text-slate-300 mt-1">단순 키워드("나의") 감지</p>
+                </div>
+              </div>
+              <div class="text-center text-4xl text-red-500 my-4">↓</div>
+              <div class="card p-6 bg-red-100 border-red-300 w-full text-center">
+                <h4 class="font-bold text-lg text-red-800">!!! 보안 취약점 !!!</h4>
+                <p class="text-sm text-red-700 mt-2">
+                  신입사원 B에게 <strong class="font-mono">A팀장의 민감한 실적 데이터</strong>가 그대로 유출됩니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-16 grid md:grid-cols-3 gap-8 text-center">
+            <div class="bg-red-50 p-6 rounded-lg">
+              <h4 class="font-bold text-red-800">벤더 종속 (Vendor Lock-in)</h4>
+              <p class="text-sm text-red-700 mt-2">
+                업체를 바꾸면 모든 지식 자산과 시스템이 소멸됩니다. 우리는 업체를 바꿀 수 없는 상황에 놓입니다.
+              </p>
+            </div>
+            <div class="bg-red-50 p-6 rounded-lg">
+              <h4 class="font-bold text-red-800">통제력 상실</h4>
+              <p class="text-sm text-red-700 mt-2">
+                데이터 접근 권한, 민감 정보 마스킹, 모델 선택 등 핵심 보안 및 운영 정책을 직접 수립하고 강제할 수
+                없습니다.
+              </p>
+            </div>
+            <div class="bg-red-50 p-6 rounded-lg">
+              <h4 class="font-bold text-red-800">미래 대응 불가</h4>
+              <p class="text-sm text-red-700 mt-2">
+                새로운 규제가 생기거나 더 좋은 기술이 나와도, 업체의 결정에 의존해야만 합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="vision" class="mb-24 scroll-mt-20">
+        <h2 class="section-title">우리의 미래: 실현 가능한 기술 아키텍처</h2>
+        <p class="section-subtitle">
+          .NET 생태계와 검증된 오픈소스를 중심으로, 데이터 주권과 통제권을 확보하는 구체적이고 실현 가능한 기술 청사진을
+          제시합니다.
+        </p>
+        <div class="card p-8 space-y-16">
+          <!-- Ingestion Pipeline -->
+          <div class="bg-white rounded-xl">
+            <h3 class="text-2xl font-bold text-center mb-2 text-violet-700">🏛️ 수집 파이프라인 (Ingestion Pipeline)</h3>
+            <p class="text-center text-slate-500 mb-10">
+              다양한 소스로부터 데이터를 수집하여 우리의 핵심 자산인 **통합 벡터 DB**를 구축하고 최신 상태로 유지합니다.
+            </p>
+            <div class="space-y-8">
+              <div class="text-center">
+                <h4 class="font-bold mb-4 text-slate-600">1. 데이터 소스</h4>
+                <div class="flex flex-wrap justify-center gap-4">
+                  <div class="arch-box bg-slate-100">MSSQL</div>
+                  <div class="arch-box bg-slate-100">파일 서버 (Excel, PDF, HWP)</div>
+                  <div class="arch-box bg-slate-100">ERP / CRM</div>
+                </div>
+              </div>
+              <div class="text-center text-3xl text-slate-400">↓</div>
+              <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">2. 데이터 수집</h4>
+                  <div class="arch-box">
+                    <span class="font-bold">.NET Core Worker Service</span>
+                    <div class="tooltip">
+                      <strong class="text-violet-300">MSSQL CDC:</strong> MSSQL 내장 기능인 Change Data Capture를
+                      활성화하고, Worker Service가 주기적으로 변경분을 폴링하여 수집합니다.<br />
+                      <strong class="text-violet-300">File System Watcher:</strong> 지정된 파일 서버의 폴더를
+                      모니터링하여 파일의 생성/수정 이벤트를 감지합니다.<br />
+                      <strong class="text-violet-300">API/DB Connector:</strong> ERP, CRM 등 내부 시스템의 데이터를 API
+                      또는 DB Link를 통해 주기적으로 추출합니다.
+                    </div>
+                  </div>
+                </div>
+                <div class="arch-arrow transform rotate-90 md:rotate-0">→</div>
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">3. 작업 오케스트레이션</h4>
+                  <div class="arch-box">
+                    <span class="font-bold">Hangfire</span>
+                    <div class="tooltip">
+                      수집, 처리, 임베딩 등 파이프라인의 모든 작업을 스케줄링하고, 종속성을 관리하며, 실패 시 재시도
+                      정책을 수행하는 .NET 네이티브 오픈소스입니다. (Airflow의 .NET 버전)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="text-center text-3xl text-slate-400">↓</div>
+              <div class="grid grid-cols-1 md:grid-cols-5 items-center gap-4">
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">4. 데이터 처리</h4>
+                  <div class="arch-box h-full">
+                    <span class="font-bold">.NET 라이브러리</span>
+                    <div class="tooltip">
+                      수집된 데이터를 파싱하고 의미 단위(Chunk)로 분할합니다.<br />
+                      <strong class="text-violet-300">Excel/Word:</strong> DocumentFormat.OpenXml<br />
+                      <strong class="text-violet-300">PDF:</strong> iText7-community<br />
+                      <strong class="text-violet-300">HWP:</strong> Hwp-Parser-dotnet<br />
+                      <strong class="text-violet-300">HTML/JSON:</strong> HtmlAgilityPack, Newtonsoft.Json
+                    </div>
+                  </div>
+                </div>
+                <div class="arch-arrow transform rotate-90 md:rotate-0">→</div>
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">5. 임베딩</h4>
+                  <div class="arch-box h-full">
+                    <span class="font-bold">Sentence Transformers (ONNX)</span>
+                    <div class="tooltip">
+                      텍스트 청크를 벡터로 변환합니다.<br />
+                      <strong class="text-violet-300">Local 모델:</strong> 경량 모델을 ONNX 형식으로 변환하여,
+                      `Microsoft.ML.OnnxRuntime` 라이브러리를 통해 .NET 앱 내에서 직접 실행합니다. (CPU로도 충분히
+                      빠름)<br />
+                      <strong class="text-violet-300">Cloud API:</strong> 필요시 OpenAI API를 호출하는 옵션도 병행
+                      가능합니다.
+                    </div>
+                  </div>
+                </div>
+                <div class="arch-arrow transform rotate-90 md:rotate-0">→</div>
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">6. 지식 저장</h4>
+                  <div class="arch-box h-full bg-violet-100 border-violet-300">
+                    <span class="font-bold">Qdrant / Milvus</span>
+                    <div class="tooltip">
+                      생성된 벡터와 권한 정보(메타데이터)를 저장하는 핵심 자산입니다.<br />
+                      Rust 기반의 **Qdrant**는 성능과 강력한 메타데이터 필터링 기능으로 추천됩니다.<br />
+                      .NET Core에서 gRPC 또는 REST API 클라이언트를 통해 쉽게 연동할 수 있습니다.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Inference Pipeline -->
+          <div class="bg-white rounded-xl">
+            <h3 class="text-2xl font-bold text-center mb-2 text-emerald-700">
+              🚀 추론 파이프라인 (Inference Pipeline)
+            </h3>
+            <p class="text-center text-slate-500 mb-10">
+              사용자의 요청을 실시간으로 처리하며, **지능형 필터링 계층**을 통해 권한을 제어하고 벡터 DB를 참조하여 최종
+              답변을 생성합니다.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-5 items-stretch gap-6">
+              <div class="space-y-4 text-center flex flex-col justify-center">
+                <h4 class="font-bold text-slate-600">1. 사용자 인터페이스</h4>
+                <div class="arch-box">
+                  <span class="font-bold">홈페이지, 인슈페퍼, 엔딩노트, 클라우드(Web, App)</span>
+                  <div class="tooltip">
+                    사용자가 직접 상호작용하는 모든 서비스 채널입니다. 사용자의 질문과 인증 정보(토큰)를 백엔드 API로
+                    전송합니다.
+                  </div>
+                </div>
+              </div>
+              <div class="arch-arrow transform rotate-90 md:rotate-0">→</div>
+              <div class="md:col-span-3 border-2 border-dashed border-emerald-300 rounded-lg p-6 space-y-4">
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">2. API 게이트웨이</h4>
+                  <div class="arch-box">
+                    <span class="font-bold">.NET Core Web API</span>
+                    <div class="tooltip">모든 요청을 수신하고 처리하는 중앙 관문입니다.</div>
+                  </div>
+                </div>
+                <div class="text-center text-3xl text-slate-400">↓</div>
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">3. 지능형 필터링 (핵심 로직)</h4>
+                  <div class="arch-box bg-emerald-100 border-emerald-300">
+                    <span class="font-bold">RAG Application</span>
+                    <div class="tooltip">
+                      <strong class="text-emerald-300">1. 권한 검사:</strong> 인증 토큰으로 사용자 역할/부서 확인<br />
+                      <strong class="text-emerald-300">2. 벡터 검색:</strong> 사용자 권한을 메타데이터 필터 조건으로
+                      추가하여 Vector DB 검색<br />
+                      <strong class="text-emerald-300">3. 프롬프트 설계:</strong> 검색된 정보와 질문을 조합하여 프롬프트
+                      생성<br />
+                      <strong class="text-emerald-300">4. 후처리/마스킹:</strong> LLM 답변에서 민감정보 최종 검사 및
+                      마스킹
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="arch-arrow transform rotate-90 md:rotate-0">→</div>
+              <div class="space-y-4 text-center flex flex-col justify-center">
+                <h4 class="font-bold text-slate-600">4. AI 모델</h4>
+                <div class="arch-box">
+                  <span class="font-bold">Local (Ollama) / OpenAI</span>
+                  <div class="tooltip">
+                    증강된 프롬프트를 기반으로 최종 답변을 생성합니다.<br />
+                    <strong class="text-emerald-300">Local LLM:</strong> Ollama와 같은 도구를 사용하여 Llama 3 등
+                    오픈소스 모델을 사내 서버에 쉽게 배포하고, .NET API에서 HTTP 요청으로 호출할 수 있습니다.<br />
+                    <strong class="text-emerald-300">Cloud API:</strong> OpenAI API를 호출하는 옵션도 선택 가능합니다.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="value" class="mb-24 scroll-mt-20">
+        <h2 class="section-title">자체 파이프라인의 전략적 가치</h2>
+        <p class="section-subtitle">
+          자체 파이프라인 구축은 단순한 비용 절감을 넘어, 비즈니스의 미래를 좌우할 핵심적인 전략적 이점을 제공합니다.
+        </p>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div class="card p-6">
+            <div class="text-4xl mb-4">👑</div>
+            <h3 class="text-xl font-bold mb-3">데이터 주권 확보</h3>
+            <p class="text-gray-600 text-sm">
+              가장 중요한 데이터 처리 과정과 그 결과물인 '벡터 DB'를 우리가 직접 소유하고 통제합니다. 데이터는 더 이상
+              외부에 종속되지 않는 우리의 완전한 자산이 됩니다.
+            </p>
+          </div>
+          <div class="card p-6">
+            <div class="text-4xl mb-4">🛡️</div>
+            <h3 class="text-xl font-bold mb-3">강력한 보안 및 권한 제어</h3>
+            <p class="text-gray-600 text-sm">
+              우리가 직접 설계한 시스템 위에서만 부서/직급별 접근 제어(RBAC)와 민감정보 마스킹이 가능합니다. 이는
+              비즈니스의 신뢰와 직결되는 핵심 요소입니다.
+            </p>
+          </div>
+          <div class="card p-6">
+            <div class="text-4xl mb-4">🚀</div>
+            <h3 class="text-xl font-bold mb-3">미래 대응 유연성</h3>
+            <p class="text-gray-600 text-sm">
+              금융 규제 변화로 Local LLM 도입이 필요해지거나, 더 뛰어난 AI 모델이 등장했을 때, 우리는 즉시 능동적으로
+              시스템을 교체하고 업그레이드할 수 있습니다.
+            </p>
+          </div>
+          <div class="card p-6">
+            <div class="text-4xl mb-4">🕊️</div>
+            <h3 class="text-xl font-bold mb-3">벤더로부터의 독립</h3>
+            <p class="text-gray-600 text-sm">
+              업체를 바꾸더라도 우리의 핵심 자산인 벡터 DB는 그대로 유지됩니다. 우리는 언제든 최고의 기술을 가진
+              파트너와 자유롭게 협력할 수 있는 힘을 갖게 됩니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="roadmap" class="scroll-mt-20">
+        <h2 class="section-title">단계별 실행 계획</h2>
+        <p class="section-subtitle">
+          리스크를 최소화하고 성공적인 전환을 위해, 핵심 기능부터 점진적으로 구축하고 내재화하는 3단계 실행 계획을
+          제안합니다.
+        </p>
+        <div class="relative pl-8 py-4 border-l-4 border-sky-300">
+          <div class="mb-12 relative">
+            <div class="absolute w-6 h-6 bg-sky-500 rounded-full -left-[1.65rem] top-1 border-4 border-white"></div>
+            <h3 class="text-xl font-bold text-sky-800">Phase 1: 기반 다지기 - 데이터 파이프라인 구축 (3개월)</h3>
+            <p class="text-gray-600 mt-2">
+              현재 업체에 제공하는 데이터를 그대로 활용하여, 내부적으로 데이터를 수집하고 정제하는 자동화된 파이프라인을
+              구축합니다. 이 단계의 목표는 데이터 처리의 '기반'을 마련하는 것입니다.
+            </p>
+          </div>
+          <div class="mb-12 relative">
+            <div class="absolute w-6 h-6 bg-sky-500 rounded-full -left-[1.65rem] top-1 border-4 border-white"></div>
+            <h3 class="text-xl font-bold text-sky-800">Phase 2: 핵심 자산 확보 - 벡터 DB 내재화 (2개월)</h3>
+            <p class="text-gray-600 mt-2">
+              구축된 파이프라인을 통해 데이터를 벡터로 변환하고, 우리의 통제 하에 있는 벡터 DB에 저장합니다. 이 단계가
+              완료되면 우리는 핵심 지식 자산을 소유하게 됩니다.
+            </p>
+          </div>
+          <div class="relative">
+            <div class="absolute w-6 h-6 bg-sky-500 rounded-full -left-[1.65rem] top-1 border-4 border-white"></div>
+            <h3 class="text-xl font-bold text-sky-800">Phase 3: 완전한 독립 - AI 모델 직접 연동 및 전환 (3개월)</h3>
+            <p class="text-gray-600 mt-2">
+              내재화된 벡터 DB를 OpenAI 등 AI 모델과 직접 연동하여 기존 시스템과 동일한 성능을 내도록 구현합니다. 이후
+              점진적으로 외부 업체 시스템에서 내부 시스템으로 트래픽을 전환합니다.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-white mt-16 border-t">
+      <div class="container mx-auto px-6 py-8 text-center text-gray-500">
+        <p>&copy; 2025 데이터 주권 확보를 위한 자체 AI 파이프라인 구축 제안서.</p>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section');
+
+        window.addEventListener('scroll', () => {
+          let current = '';
+          sections.forEach((section) => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 60) {
+              current = section.getAttribute('id');
+            }
+          });
+
+          navLinks.forEach((link) => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+              link.classList.add('active');
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
