@@ -242,12 +242,95 @@
           제시합니다.
         </p>
         <div class="card p-8 space-y-16">
+          <!-- Ingestion Pipeline -->
           <div class="bg-white rounded-xl">
             <h3 class="text-2xl font-bold text-center mb-2 text-violet-700">🏛️ 수집 파이프라인 (Ingestion Pipeline)</h3>
             <p class="text-center text-slate-500 mb-10">
               다양한 소스로부터 데이터를 수집하여 우리의 핵심 자산인 **통합 벡터 DB**를 구축하고 최신 상태로 유지합니다.
             </p>
+            <div class="space-y-8">
+              <div class="text-center">
+                <h4 class="font-bold mb-4 text-slate-600">1. 데이터 소스</h4>
+                <div class="flex flex-wrap justify-center gap-4">
+                  <div class="arch-box bg-slate-100">MSSQL</div>
+                  <div class="arch-box bg-slate-100">파일 서버 (Excel, PDF, HWP)</div>
+                  <div class="arch-box bg-slate-100">ERP / CRM</div>
+                </div>
+              </div>
+              <div class="text-center text-3xl text-slate-400">↓</div>
+              <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">2. 데이터 수집</h4>
+                  <div class="arch-box">
+                    <span class="font-bold">.NET Core Worker Service</span>
+                    <div class="tooltip">
+                      <strong class="text-violet-300">MSSQL CDC:</strong> MSSQL 내장 기능인 Change Data Capture를
+                      활성화하고, Worker Service가 주기적으로 변경분을 폴링하여 수집합니다.<br />
+                      <strong class="text-violet-300">File System Watcher:</strong> 지정된 파일 서버의 폴더를
+                      모니터링하여 파일의 생성/수정 이벤트를 감지합니다.<br />
+                      <strong class="text-violet-300">API/DB Connector:</strong> ERP, CRM 등 내부 시스템의 데이터를 API
+                      또는 DB Link를 통해 주기적으로 추출합니다.
+                    </div>
+                  </div>
+                </div>
+                <div class="arch-arrow transform rotate-90 md:rotate-0">→</div>
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">3. 작업 오케스트레이션</h4>
+                  <div class="arch-box">
+                    <span class="font-bold">Hangfire</span>
+                    <div class="tooltip">
+                      수집, 처리, 임베딩 등 파이프라인의 모든 작업을 스케줄링하고, 종속성을 관리하며, 실패 시 재시도
+                      정책을 수행하는 .NET 네이티브 오픈소스입니다. (Airflow의 .NET 버전)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="text-center text-3xl text-slate-400">↓</div>
+              <div class="grid grid-cols-1 md:grid-cols-5 items-center gap-4">
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">4. 데이터 처리</h4>
+                  <div class="arch-box h-full">
+                    <span class="font-bold">.NET 라이브러리</span>
+                    <div class="tooltip">
+                      수집된 데이터를 파싱하고 의미 단위(Chunk)로 분할합니다.<br />
+                      <strong class="text-violet-300">Excel/Word:</strong> DocumentFormat.OpenXml<br />
+                      <strong class="text-violet-300">PDF:</strong> iText7-community<br />
+                      <strong class="text-violet-300">HWP:</strong> Hwp-Parser-dotnet<br />
+                      <strong class="text-violet-300">HTML/JSON:</strong> HtmlAgilityPack, Newtonsoft.Json
+                    </div>
+                  </div>
+                </div>
+                <div class="arch-arrow transform rotate-90 md:rotate-0">→</div>
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">5. 임베딩</h4>
+                  <div class="arch-box h-full">
+                    <span class="font-bold">Sentence Transformers (ONNX)</span>
+                    <div class="tooltip">
+                      텍스트 청크를 벡터로 변환합니다.<br />
+                      <strong class="text-violet-300">Local 모델:</strong> 경량 모델을 ONNX 형식으로 변환하여,
+                      `Microsoft.ML.OnnxRuntime` 라이브러리를 통해 .NET 앱 내에서 직접 실행합니다. (CPU로도 충분히
+                      빠름)<br />
+                      <strong class="text-violet-300">Cloud API:</strong> 필요시 OpenAI API를 호출하는 옵션도 병행
+                      가능합니다.
+                    </div>
+                  </div>
+                </div>
+                <div class="arch-arrow transform rotate-90 md:rotate-0">→</div>
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">6. 지식 저장</h4>
+                  <div class="arch-box h-full bg-violet-100 border-violet-300">
+                    <span class="font-bold">Qdrant / Milvus</span>
+                    <div class="tooltip">
+                      생성된 벡터와 권한 정보(메타데이터)를 저장하는 핵심 자산입니다.<br />
+                      Rust 기반의 **Qdrant**는 성능과 강력한 메타데이터 필터링 기능으로 추천됩니다.<br />
+                      .NET Core에서 gRPC 또는 REST API 클라이언트를 통해 쉽게 연동할 수 있습니다.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+          <!-- Inference Pipeline -->
           <div class="bg-white rounded-xl">
             <h3 class="text-2xl font-bold text-center mb-2 text-emerald-700">
               🚀 추론 파이프라인 (Inference Pipeline)
@@ -256,7 +339,59 @@
               사용자의 요청을 실시간으로 처리하며, **지능형 필터링 계층**을 통해 권한을 제어하고 벡터 DB를 참조하여 최종
               답변을 생성합니다.
             </p>
+            <div class="grid grid-cols-1 md:grid-cols-5 items-stretch gap-6">
+              <div class="space-y-4 text-center flex flex-col justify-center">
+                <h4 class="font-bold text-slate-600">1. 사용자 인터페이스</h4>
+                <div class="arch-box">
+                  <span class="font-bold">홈페이지, 인슈페퍼, 엔딩노트, 클라우드(Web, App)</span>
+                  <div class="tooltip">
+                    사용자가 직접 상호작용하는 모든 서비스 채널입니다. 사용자의 질문과 인증 정보(토큰)를 백엔드 API로
+                    전송합니다.
+                  </div>
+                </div>
+              </div>
+              <div class="arch-arrow transform rotate-90 md:rotate-0">→</div>
+              <div class="md:col-span-3 border-2 border-dashed border-emerald-300 rounded-lg p-6 space-y-4">
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">2. API 게이트웨이</h4>
+                  <div class="arch-box">
+                    <span class="font-bold">.NET Core Web API</span>
+                    <div class="tooltip">모든 요청을 수신하고 처리하는 중앙 관문입니다.</div>
+                  </div>
+                </div>
+                <div class="text-center text-3xl text-slate-400">↓</div>
+                <div class="space-y-4 text-center">
+                  <h4 class="font-bold text-slate-600">3. 지능형 필터링 (핵심 로직)</h4>
+                  <div class="arch-box bg-emerald-100 border-emerald-300">
+                    <span class="font-bold">RAG Application</span>
+                    <div class="tooltip">
+                      <strong class="text-emerald-300">1. 권한 검사:</strong> 인증 토큰으로 사용자 역할/부서 확인<br />
+                      <strong class="text-emerald-300">2. 벡터 검색:</strong> 사용자 권한을 메타데이터 필터 조건으로
+                      추가하여 Vector DB 검색<br />
+                      <strong class="text-emerald-300">3. 프롬프트 설계:</strong> 검색된 정보와 질문을 조합하여 프롬프트
+                      생성<br />
+                      <strong class="text-emerald-300">4. 후처리/마스킹:</strong> LLM 답변에서 민감정보 최종 검사 및
+                      마스킹
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="arch-arrow transform rotate-90 md:rotate-0">→</div>
+              <div class="space-y-4 text-center flex flex-col justify-center">
+                <h4 class="font-bold text-slate-600">4. AI 모델</h4>
+                <div class="arch-box">
+                  <span class="font-bold">Local (Ollama) / OpenAI</span>
+                  <div class="tooltip">
+                    증강된 프롬프트를 기반으로 최종 답변을 생성합니다.<br />
+                    <strong class="text-emerald-300">Local LLM:</strong> Ollama와 같은 도구를 사용하여 Llama 3 등
+                    오픈소스 모델을 사내 서버에 쉽게 배포하고, .NET API에서 HTTP 요청으로 호출할 수 있습니다.<br />
+                    <strong class="text-emerald-300">Cloud API:</strong> OpenAI API를 호출하는 옵션도 선택 가능합니다.
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+          <!-- CI/CD & MLOps Pipeline -->
           <div class="bg-white rounded-xl">
             <h3 class="text-2xl font-bold text-center mb-2 text-cyan-700">
               🔄 CI/CD 및 운영 파이프라인 (CI/CD & MLOps)
@@ -264,6 +399,79 @@
             <p class="text-center text-slate-500 mb-10">
               코드 변경부터 배포까지 전 과정을 자동화하여 안정적이고 신속한 서비스 운영을 보장합니다.
             </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- CI Pipeline -->
+              <div class="border-2 border-dashed border-cyan-300 rounded-lg p-6 space-y-4">
+                <h4 class="font-bold text-slate-600 text-center">1. CI (Continuous Integration)</h4>
+                <div class="arch-box">
+                  <span class="font-bold">Git Commit (GitHub)</span>
+                  <div class="tooltip">
+                    개발자가 코드를 변경하고 GitHub 리포지토리에 푸시하면 파이프라인이 자동으로 시작됩니다.
+                  </div>
+                </div>
+                <div class="text-center text-3xl text-slate-400">↓</div>
+                <div class="arch-box">
+                  <span class="font-bold">Build & Test (GitHub Actions)</span>
+                  <div class="tooltip">
+                    <strong class="text-cyan-300">Build:</strong> `dotnet build` 명령으로 .NET 프로젝트를
+                    컴파일합니다.<br />
+                    <strong class="text-cyan-300">Test:</strong> `dotnet test` 명령으로 유닛 테스트 및 통합 테스트를
+                    실행하여 코드 품질을 검증합니다.
+                  </div>
+                </div>
+                <div class="text-center text-3xl text-slate-400">↓</div>
+                <div class="arch-box">
+                  <span class="font-bold">Containerize (Docker)</span>
+                  <div class="tooltip">
+                    테스트를 통과한 애플리케이션을 Dockerfile을 기반으로 컨테이너 이미지로 빌드합니다. 이를 통해 일관된
+                    실행 환경을 보장합니다.
+                  </div>
+                </div>
+                <div class="text-center text-3xl text-slate-400">↓</div>
+                <div class="arch-box">
+                  <span class="font-bold">Push to Registry (ACR)</span>
+                  <div class="tooltip">
+                    빌드된 Docker 이미지를 버전 태그와 함께 Azure Container Registry(ACR)에 푸시하여 중앙에서
+                    관리합니다.
+                  </div>
+                </div>
+              </div>
+              <div class="arch-arrow self-center transform rotate-90 md:rotate-0">→</div>
+              <!-- CD Pipeline -->
+              <div class="border-2 border-dashed border-cyan-300 rounded-lg p-6 space-y-4">
+                <h4 class="font-bold text-slate-600 text-center">2. CD (Continuous Deployment)</h4>
+                <div class="arch-box">
+                  <span class="font-bold">Deploy to Staging (AKS)</span>
+                  <div class="tooltip">
+                    새로운 이미지를 스테이징 환경의 Azure Kubernetes Service(AKS) 클러스터에 배포합니다.
+                  </div>
+                </div>
+                <div class="text-center text-3xl text-slate-400">↓</div>
+                <div class="arch-box">
+                  <span class="font-bold">Automated E2E Tests</span>
+                  <div class="tooltip">
+                    스테이징 환경에서 실제 사용자의 시나리오를 모방하는 End-to-End 테스트를 자동으로 실행하여 기능의
+                    안정성을 최종 검증합니다.
+                  </div>
+                </div>
+                <div class="text-center text-3xl text-slate-400">↓</div>
+                <div class="arch-box">
+                  <span class="font-bold">Manual Approval</span>
+                  <div class="tooltip">
+                    모든 테스트 통과 후, 담당자가 GitHub Actions/Azure Pipelines UI에서 최종 승인을 해야만 프로덕션
+                    배포가 진행됩니다. (안전장치)
+                  </div>
+                </div>
+                <div class="text-center text-3xl text-slate-400">↓</div>
+                <div class="arch-box bg-cyan-100 border-cyan-300">
+                  <span class="font-bold">Deploy to Production (AKS)</span>
+                  <div class="tooltip">
+                    승인 후, Blue/Green 또는 Canary와 같은 무중단 배포 전략을 사용하여 프로덕션 환경에 안전하게
+                    배포합니다.
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -310,7 +518,7 @@
         </div>
       </section>
 
-      <!-- NEW Section 4: Evolution of Work -->
+      <!-- Section 4: Evolution of Work -->
       <section id="evolution" class="mb-24 scroll-mt-20">
         <h2 class="section-title">업무의 진화: 수동에서 자동화로</h2>
         <p class="section-subtitle">
@@ -380,7 +588,7 @@
         </div>
       </section>
 
-      <!-- NEW Section 5: Expansion Towards the Future -->
+      <!-- Section 5: Expansion Towards the Future -->
       <section id="expansion" class="mb-24 scroll-mt-20">
         <h2 class="section-title">미래를 향한 확장: AI 에이전트</h2>
         <p class="section-subtitle">
